@@ -41,8 +41,8 @@ public class AlignmentFilter {
                 return null;
             }
 
-            for(Operator o: Operator.values()){
-                if(o.getDisplayValue().equals(displayValue)){
+            for (Operator o : Operator.values()) {
+                if (o.getDisplayValue().equals(displayValue)) {
                     return o;
                 }
             }
@@ -82,34 +82,34 @@ public class AlignmentFilter {
 //    }
 
     public boolean isExclude() {
-		return exclude;
-	}
+        return exclude;
+    }
 
-	public void setExclude(boolean exclude) {
-		this.exclude = exclude;
-	}
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
+    }
 
-	public String getExpression() {
-		return expression;
-	}
+    public String getExpression() {
+        return expression;
+    }
 
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 
-	AlignmentFilter() {
-		exclude = true;
-		tag = "NM";
-		expression = "*T*";
-	}
+    AlignmentFilter() {
+        exclude = true;
+        tag = "NM";
+        expression = "*T*";
+    }
 
-	public String getTag() {
-		return tag;
-	}
+    public String getTag() {
+        return tag;
+    }
 
     /**
      * Apply this filter instance to {@code value}.
@@ -117,18 +117,13 @@ public class AlignmentFilter {
      * @param value True to include, false to exclude
      * @return
      */
-	public boolean filter(String value) {
-		String regExprToUse = null;
-		Pattern regExpr;
+    public boolean filter(String value) {
+        String regExprToUse = null;
+        Pattern regExpr;
 
-		boolean match = true;
+        boolean match = true;
 
-        //Check if numeric filter
-        if(isNumericComparison()){
-            return filter(Double.parseDouble(value));
-        }
-
-        switch(comparisonOperator){
+        switch (comparisonOperator) {
             case EQUAL:
                 match = value.equalsIgnoreCase(expression);
                 break;
@@ -157,34 +152,34 @@ public class AlignmentFilter {
 
         match = exclude ? !match : match;
 
-		return match;
-	}
+        return match;
+    }
 
-	public boolean filter(double attr) {
-        if(!isNumericComparison()){
+    public boolean filter(double attr) {
+        if (!isNumericComparison()) {
             return filter("" + attr);
         }
-		if (comparisonOperator == Operator.GREATER_THAN) {
-			return Double.parseDouble(expression) >= attr;
-		} else if (comparisonOperator == Operator.LESS_THAN) {
-			return Double.parseDouble(expression) <= attr;
-		} else if (comparisonOperator == Operator.EQUAL){
+        if (comparisonOperator == Operator.GREATER_THAN) {
+            return Double.parseDouble(expression) >= attr;
+        } else if (comparisonOperator == Operator.LESS_THAN) {
+            return Double.parseDouble(expression) <= attr;
+        } else if (comparisonOperator == Operator.EQUAL) {
             return Double.parseDouble(expression) == attr;
         }
 
         throw new IllegalStateException("This is a programming error, somehow we treated this filter as both numeric and non-numeric");
-	}
+    }
 
-	public void setComparisonOperator(Operator op) {
-		this.comparisonOperator = op;
-	}
+    public void setComparisonOperator(Operator op) {
+        this.comparisonOperator = op;
+    }
 
-    public void setComparisonOperator(String s){
+    public void setComparisonOperator(String s) {
         this.setComparisonOperator(Operator.findEnum(s));
     }
 
-	public Operator getComparisonOperator() {
-		return this.comparisonOperator;
-	}
+    public Operator getComparisonOperator() {
+        return this.comparisonOperator;
+    }
 
 }
