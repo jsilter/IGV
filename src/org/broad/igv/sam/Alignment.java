@@ -108,8 +108,17 @@ public interface Alignment extends LocusScore {
 
     Strand getReadStrand();
 
-    //Should always return false if no argument given...
-	boolean filteredOut();
-	
-	boolean filteredOut(List<AlignmentFilter> alnFilter);
+    /*
+     * Whether the alignment should be displayed or not
+     */
+	boolean isVisible();
+
+
+    /**
+     * Apply the provided filters and return
+     * whether the alignment should be displayed
+     * @param
+     * @return
+     */
+	boolean applyFilters(List<AlignmentFilter> alnFilter);
 }

@@ -147,7 +147,7 @@ public class AlignmentPacker {
         Alignment firstAlignment = iter.next();
         
         //in case the first alignment is filtered out...
-        while (firstAlignment.filteredOut(/*renderOptions.alnFilter*/)){
+        while (!firstAlignment.isVisible()){
         	firstAlignment = iter.next();
         }
         if (pairAlignments && firstAlignment.isPaired() && firstAlignment.isProperPair() && firstAlignment.getMate().isMapped()) {
@@ -184,7 +184,7 @@ public class AlignmentPacker {
             Alignment al = iter.next();
             String readName = al.getReadName();
 
-            if (al.isMapped() && !al.filteredOut(renderOptions.alnFilter)) {
+            if (al.isMapped() && al.applyFilters(renderOptions.alnFilter)) {
 
                 Alignment alignment = al;
                 if (pairAlignments && al.isPaired() && al.getMate().isMapped() && al.getChr().equals(al.getMate().getChr())) {

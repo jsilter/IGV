@@ -1259,9 +1259,9 @@ public class AlignmentTrack extends AbstractTrack implements
 				if (idx > clonedFilter.size()) {
 					log.warn("clonedFilter is empty");
 				} else {
-					clonedFilter.get(idx.intValue()).setOperation(
+					clonedFilter.get(idx.intValue()).setComparisonOperator(
 							(String) jrb.getSelectedItem());
-					log.warn(clonedFilter.get(idx.intValue()).getOperation());
+					log.warn(clonedFilter.get(idx.intValue()).getComparisonOperator());
 				}
 				log.warn(idx);
 

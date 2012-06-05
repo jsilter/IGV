@@ -80,6 +80,7 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
 	private Strand firstOfPairStrand;
 	private Strand secondOfPairStrand;
 
+
 	/**
 	 * Converts a DNA integer value to its reverse compliment integer value.
 	 */
@@ -1064,53 +1065,4 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
 		return r;
 	}
 
-	@Override
-	public boolean filteredOut() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	// List of criteria:
-	// if criterion is fulfilled then either keep record or not
-	// if criterion is not met then move on to next criterion 
-	
-	public boolean filteredOut(List<AlignmentFilter> alnFilter) {
-		
-		if(alnFilter == null){
-			return false;
-		}
-		Iterator<AlignmentFilter> it = alnFilter.iterator();
-		// We iterate through the filters and exclude or include based on
-		// criterion and priority. I.e. The first filter that applies wins.
-		while (it.hasNext()) {
-			AlignmentFilter alnF = (AlignmentFilter) it.next();
-
-			Object attr = record.getAttribute(alnF.getTag());
-
-			// if tag is missing ...
-			if (attr == null && alnF.isExclude() && alnF.getOperation().equals("is missing")) {
-				return true;
-			} else if (attr == null
-						&& !alnF.isExclude()
-						&& alnF.getOperation().equals("is missing")) {
-					return false;
-			}
-			// if tag is missing but not explicitly mentioned we don't care and
-			// move on to the next filter
-			if(attr == null){
-				continue;
-			}
-			
-			// tag is not missing: 
-			if(alnF.filter(record.getAttribute(alnF.getTag()))){
-				if(alnF.isExclude()) return true;
-				else return false;
-			}
-		}
-		
-
-		// if we are here we can display it by default
-		return false;
-	}
 }

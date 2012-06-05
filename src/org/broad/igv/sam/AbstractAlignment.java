@@ -26,6 +26,8 @@ import org.broad.igv.feature.Strand;
 import org.broad.igv.track.WindowFunction;
 
 import java.awt.*;
+import java.awt.font.NumericShaper;
+import java.util.*;
 
 /**
  * @author jrobinso
@@ -41,6 +43,16 @@ public abstract class AbstractAlignment implements Alignment {
     AlignmentBlock[] insertions;
     char[] gapTypes;
     private boolean negativeStrand;
+
+
+    /**
+     * Whether the alignment should be displayed (true) or not
+     */
+    protected boolean visible = true;
+
+    public boolean isVisible(){
+        return visible;
+    }
 
     public AbstractAlignment() {
     }
@@ -317,6 +329,42 @@ public abstract class AbstractAlignment implements Alignment {
 
     public Strand getReadStrand() {
         return isNegativeStrand() ? Strand.NEGATIVE : Strand.POSITIVE;
+    }
+
+
+    /*
+    * Apply all filters to this alignment.
+    * This clears all previous filters
+    */
+    @Override
+    public boolean applyFilters(java.util.List<AlignmentFilter> alnFilter) {
+
+        visible = true;
+        if(alnFilter == null){
+            return isVisible();
+        }
+        // We iterate through the filters and apply them all
+        for (AlignmentFilter alnF : alnFilter) {
+            //Stop iteration when it becomes pointless
+            if (!visible) {
+                break;
+            }
+
+            Object attr = getAttribute(alnF.getTag());
+            String sattr = attr != null ? attr.toString() : null;
+
+            if (alnF.isNumericComparison() && sattr != null) {
+                try {
+                    double dattr = Double.parseDouble(sattr);
+                    visible &= alnF.filter(dattr);
+                    continue;
+                } catch (NumberFormatException e) {
+                    //Attempt to parse it as a string later
+                }
+            }
+            visible &= alnF.filter(sattr);
+        }
+        return isVisible();
     }
 
 

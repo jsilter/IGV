@@ -1,15 +1,87 @@
 package org.broad.igv.sam;
 
-import net.sf.samtools.SAMRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.broad.igv.util.FilterElement.BooleanOperator;
-import org.broad.igv.util.FilterElement.Operator;
 
 public class AlignmentFilter {
 
-	public boolean isExclude() {
+    private boolean exclude;
+    private String tag;
+    private String expression;
+    private Operator comparisonOperator = Operator.EQUAL;
+
+    public boolean isNumericComparison() {
+        return comparisonOperator == Operator.GREATER_THAN ||
+                comparisonOperator == Operator.LESS_THAN ||
+                comparisonOperator == Operator.EQUAL;
+    }
+
+    public static enum Operator {
+
+        EQUAL("is equal to"), NOT_EQUAL("is not equal to"), GREATER_THAN(
+                "is greater than"), LESS_THAN("is less than"), STARTS_WITH("starts with"), CONTAINS(
+                "contains"), REGULAR_EXPRESSION("is regular expression"), CONTAINS_WILDCARDS(
+                "contains wild cards"), IS_MISSING("is missing"), DOES_NOT_CONTAIN(
+                "does not contain");
+
+        String displayValue;
+
+        Operator(String displayValue) {
+            this.displayValue = displayValue;
+        }
+
+        public String getDisplayValue() {
+            return displayValue;
+        }
+
+        static public Operator findEnum(String displayValue) {
+
+            if (displayValue == null) {
+                return null;
+            }
+
+            for(Operator o: Operator.values()){
+                if(o.getDisplayValue().equals(displayValue)){
+                    return o;
+                }
+            }
+
+            return null;
+        }
+    }
+
+
+//    public static enum BooleanOperator {
+//
+//        AND("AND"), OR("OR");
+//
+//        String value;
+//
+//        BooleanOperator(String value) {
+//            this.value = value;
+//        }
+//
+//        public String getValue() {
+//            return value;
+//        }
+//
+//        static public BooleanOperator findEnum(String value) {
+//
+//            if (value == null) {
+//                return null;
+//            }
+//
+//            if (value.equals(AND.getValue())) {
+//                return AND;
+//            } else if (value.equals(OR.getValue())) {
+//                return OR;
+//            }
+//            return null;
+//        }
+//    }
+
+    public boolean isExclude() {
 		return exclude;
 	}
 
@@ -29,191 +101,90 @@ public class AlignmentFilter {
 		this.tag = tag;
 	}
 
-	public static enum Operator {
-
-		EQUAL("is equal to"), NOT_EQUAL("is not equal to"), GREATER_THAN(
-				"is greater than"), LESS_THAN("is less than"), GREATER_THAN_OR_EQUAL(
-				"is greater than or equal to"), LESS_THAN_OR_EQUAL(
-				"is less than or equal to"), STARTS_WITH("starts with"), CONTAINS(
-				"contains"), REGULAR_EXPRESSION("is regular expression"), CONTAINS_WILDCARDS(
-				"contains wild cards"), IS_MISSING("is missing"), DOES_NOT_CONTAIN(
-				"does not contain");
-
-		String value;
-
-		Operator(String value) {
-			this.value = value;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-		static public Operator findEnum(String value) {
-
-			if (value == null) {
-				return null;
-			}
-
-			if (value.equals(EQUAL.getValue())) {
-				return EQUAL;
-			} else if (value.equals(NOT_EQUAL.getValue())) {
-				return NOT_EQUAL;
-			} else if (value.equals(GREATER_THAN.getValue())) {
-				return GREATER_THAN;
-			} else if (value.equals(LESS_THAN.getValue())) {
-				return LESS_THAN;
-			} else if (value.equals(GREATER_THAN_OR_EQUAL.getValue())) {
-				return GREATER_THAN_OR_EQUAL;
-			} else if (value.equals(LESS_THAN_OR_EQUAL.getValue())) {
-				return LESS_THAN_OR_EQUAL;
-			} else if (value.equals(STARTS_WITH.getValue())) {
-				return STARTS_WITH;
-			} else if (value.equals(CONTAINS.getValue())) {
-				return CONTAINS;
-			} else if (value.equals(REGULAR_EXPRESSION.getValue())) {
-				return REGULAR_EXPRESSION;
-			} else if (value.equals(CONTAINS_WILDCARDS.getValue())) {
-				return CONTAINS_WILDCARDS;
-			} else if (value.equals(IS_MISSING.getValue())) {
-				return IS_MISSING;
-			} else if (value.equals(DOES_NOT_CONTAIN.getValue())) {
-				return CONTAINS;
-			}
-			return null;
-		}
-	}
-
-	private Operator comparisonOperator = Operator.EQUAL;
-
-	public static enum BooleanOperator {
-
-		AND("AND"), OR("OR");
-
-		String value;
-
-		BooleanOperator(String value) {
-			this.value = value;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-		static public BooleanOperator findEnum(String value) {
-
-			if (value == null) {
-				return null;
-			}
-
-			if (value.equals(AND.getValue())) {
-				return AND;
-			} else if (value.equals(OR.getValue())) {
-				return OR;
-			}
-			return null;
-		}
-	}
-
-	private boolean exclude;
-	private String tag;
-	private String expression;
-	private String Operation;
-
 	AlignmentFilter() {
 		exclude = true;
 		tag = "NM";
 		expression = "*T*";
-		Operation = "does not contain";
 	}
 
 	public String getTag() {
 		return tag;
 	}
 
-	// false = keep for display
-	// true = filter out (remove from display)
-	public boolean filter(String attr) {
+    /**
+     * Apply this filter instance to {@code value}.
+     *
+     * @param value True to include, false to exclude
+     * @return
+     */
+	public boolean filter(String value) {
 		String regExprToUse = null;
 		Pattern regExpr;
 
-		boolean match = false;
+		boolean match = true;
 
-		if (Operation.equals("is equal to")) {
-			if (attr.equals(expression)) {
-				match = true;
-			}
-		} else if (Operation.equals("is not equal to")) {
-			if (!attr.equals(expression)) {
-				match = true;
-			}
-		} else if (Operation.equals("starts with")) {
-			if (attr.startsWith(expression)) {
-				match = true;
-			}
-		} else if (Operation.equals("contains")) {
-			if (attr.contains(expression)) {
-				match = true;
-			}
-		} else if (Operation.equals("is regular expression")) {
-			regExprToUse = expression;
-			regExpr = Pattern.compile(regExprToUse);
-			Matcher matcher = regExpr.matcher(attr);
-			match = matcher.matches();
-		} else if (Operation.equals("does not contain")) {
-			if (attr.contains(expression)) {
-				match = true;
-			}
-		} else if (Operation.equals("is missing")) {
-			// if the flag is missing (that is what "is missing" is referring
-			// to, we won't be here
-			return false;
-		}
+        //Check if numeric filter
+        if(isNumericComparison()){
+            return filter(Double.parseDouble(value));
+        }
 
-		// if (hasWildCards) {
-		// regExprToUse = WildcardMatcher.wildcardToRegex(expression);
-		// } else
+        switch(comparisonOperator){
+            case EQUAL:
+                match = value.equalsIgnoreCase(expression);
+                break;
+            case NOT_EQUAL:
+                match = !value.equalsIgnoreCase(expression);
+                break;
+            case STARTS_WITH:
+                match = value.startsWith(expression);
+                break;
+            case CONTAINS:
+                match = value.contains(expression);
+                break;
+            case DOES_NOT_CONTAIN:
+                match = !value.contains(expression);
+                break;
+            case REGULAR_EXPRESSION:
+                regExprToUse = expression;
+                regExpr = Pattern.compile(regExprToUse);
+                Matcher matcher = regExpr.matcher(value);
+                match = matcher.matches();
+                break;
+            case IS_MISSING:
+                match = value == null;
+                break;
+        }
+
+        match = exclude ? !match : match;
 
 		return match;
 	}
 
-	public boolean filter(Double attr) {
-		if (Operation.equals("is greater than")) {
-			return Double.parseDouble(expression) > attr;
-		} else if (Operation.equals("is less than")) {
-			return Double.parseDouble(expression) < attr;
-		} else if (Operation.equals("is greater than or equal to")) {
+	public boolean filter(double attr) {
+        if(!isNumericComparison()){
+            return filter("" + attr);
+        }
+		if (comparisonOperator == Operator.GREATER_THAN) {
 			return Double.parseDouble(expression) >= attr;
-		} else if (Operation.equals("is less than or equal to")) {
+		} else if (comparisonOperator == Operator.LESS_THAN) {
 			return Double.parseDouble(expression) <= attr;
-		} else {
-			return filter(attr.toString());
-		}
+		} else if (comparisonOperator == Operator.EQUAL){
+            return Double.parseDouble(expression) == attr;
+        }
+
+        throw new IllegalStateException("This is a programming error, somehow we treated this filter as both numeric and non-numeric");
 	}
 
-	public boolean filter(Object attribute) {
-		if (attribute instanceof Integer) {
-			if (Operation.equals("is greater than")
-					|| Operation.equals("is less than")
-					|| Operation.equals("is greater than or equal to")
-					|| Operation.equals("is less than or equal to")) {
-				return filter(new Double((Integer) attribute));
-			}
-		}
-		return filter(attribute.toString());
-
+	public void setComparisonOperator(Operator op) {
+		this.comparisonOperator = op;
 	}
 
-	public void setOperation(String op) {
-		this.Operation = op;
-	}
+    public void setComparisonOperator(String s){
+        this.setComparisonOperator(Operator.findEnum(s));
+    }
 
-	public String getOperation() {
-		return this.Operation;
+	public Operator getComparisonOperator() {
+		return this.comparisonOperator;
 	}
-
-	// public boolean filter(Object attr) {
-	// return false;
-	// }
 
 }

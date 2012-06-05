@@ -6,13 +6,10 @@ import javax.swing.event.DocumentListener;
 
 import com.jidesoft.swing.JideButton;
 
-import net.sf.samtools.SAMRecord.SAMTagAndValue;
-
 import org.broad.igv.util.FilterElement.Operator;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -168,7 +165,7 @@ public class AlignmentFilterComponent extends JPanel {
 				continue;
 			}
 
-			textForOperators.add(operators[i].getValue());
+			textForOperators.add(operators[i].getDisplayValue());
 		}
 		Collections.sort(textForOperators);
 		comparisonOperatorComboBox = new JComboBox();
@@ -182,7 +179,7 @@ public class AlignmentFilterComponent extends JPanel {
 		comparisonOperatorComboBox.setPreferredSize(new java.awt.Dimension(150,
 				27));
 		comparisonOperatorComboBox.addActionListener(actListener);
-		comparisonOperatorComboBox.setSelectedItem(alf.getOperation());
+		comparisonOperatorComboBox.setSelectedItem(alf.getComparisonOperator().getDisplayValue());
 		jPanel1.add(comparisonOperatorComboBox);
 
 		// String parameters

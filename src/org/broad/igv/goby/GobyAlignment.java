@@ -775,21 +775,13 @@ public class GobyAlignment implements Alignment {
         return isNegativeStrand() ? Strand.NEGATIVE : Strand.POSITIVE;
     }
 
+    @Override
+    public boolean isVisible() {
+        return true; //TODO
+    }
 
-    /*
-     * Add filtering options for viewing alignment
-     */
-	@Override
-	public boolean filteredOut() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-
-
-	@Override
-	public boolean filteredOut(List<AlignmentFilter> alnFilter) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean applyFilters(List<AlignmentFilter> alnFilter) {
+        return isVisible(); //TODO
+    }
 }

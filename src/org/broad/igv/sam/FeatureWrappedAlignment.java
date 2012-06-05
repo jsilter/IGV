@@ -25,6 +25,8 @@ import org.broad.igv.feature.Strand;
 import org.broad.igv.track.WindowFunction;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 /**
  * Some alignment formats are parsed as Features.
@@ -246,15 +248,14 @@ public class FeatureWrappedAlignment implements Alignment {
         return isNegativeStrand() ? Strand.NEGATIVE : Strand.POSITIVE;
     }
 
-	@Override
-	public boolean filteredOut() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isVisible() {
+        return true;
+    }
 
-	@Override
-	public boolean filteredOut(java.util.List<AlignmentFilter> alnFilter) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean applyFilters(List<AlignmentFilter> alnFilter) {
+        return isVisible();
+    }
+
 }
